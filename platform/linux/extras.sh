@@ -37,6 +37,7 @@ install_docker() {
   sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo usermod -aG docker "$USER" || true
   success "Docker installed"
+  warn "Docker group applied — log out and back in to run docker without sudo"
 }
 
 # Ghostty — https://ghostty.org
