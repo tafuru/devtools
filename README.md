@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/tafuru/devtools/actions/workflows/ci.yml/badge.svg)](https://github.com/tafuru/devtools/actions/workflows/ci.yml)
 
-GUI apps and fonts installer for macOS and Linux.
+GUI apps and fonts installer for macOS and Ubuntu/Debian.
 
 ## Apps & Fonts
 
@@ -30,13 +30,13 @@ cd devtools
 bash install.sh
 ```
 
-On macOS, apps and fonts are installed via Homebrew Cask. On Linux, apps are installed from their official apt repositories; HackGen Nerd Font is fetched from GitHub Releases and installed to `~/.local/share/fonts/`.
+On macOS, apps and fonts are installed via Homebrew Cask. On Ubuntu/Debian, apps are installed from their official apt repositories; HackGen Nerd Font is fetched from GitHub Releases and installed to `~/.local/share/fonts/`.
 
 ## Design Principles
 
 - Installs GUI apps and fonts only — configuration lives in [dotfiles](https://github.com/tafuru/dotfiles)
 - Separate from [cmdtools](https://github.com/tafuru/cmdtools) — CLI tools and GUI apps have different lifecycles
-- Linux uses official vendor apt repositories for apps; no Linuxbrew
+- Ubuntu/Debian uses official vendor apt repositories for apps; no Linuxbrew
 
 ## Related
 
