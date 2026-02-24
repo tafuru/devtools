@@ -32,7 +32,7 @@ jobs:
         if: matrix.install-method == 'clone'
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 30
+          timeout_minutes: 60
           max_attempts: 5
           command: bash install.sh
 
@@ -42,7 +42,7 @@ jobs:
         env:
           DEVTOOLS_BRANCH: ${{ github.head_ref || github.ref_name }}
         with:
-          timeout_minutes: 30
+          timeout_minutes: 60
           max_attempts: 5
           command: |
             BRANCH="${{ github.head_ref || github.ref_name }}"

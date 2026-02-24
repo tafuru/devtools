@@ -12,6 +12,14 @@ success() { echo "[devtools] ✓ $*"; }
 warn()    { echo "[devtools] ! $*" >&2; }
 fatal()   { echo "[devtools] ✗ $*" >&2; exit 1; }
 
+if [ "${1:-}" = "--help" ]; then
+  echo "Usage: install.sh [--help]"
+  echo ""
+  echo "Installs GUI apps and fonts for macOS (Homebrew Cask) or Linux (apt + GitHub Releases)."
+  echo "No options required — run directly."
+  exit 0
+fi
+
 case "$OS" in
   Darwin) PLATFORM_FILE="$SCRIPT_DIR/platform/macos/Brewfile" ;;
   Linux)  PLATFORM_FILE="$SCRIPT_DIR/platform/linux/extras.sh" ;;
