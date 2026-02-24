@@ -40,7 +40,8 @@ On macOS, apps and fonts are installed via Homebrew Cask. On Linux, apps are ins
 
 ## Related
 
-For a full machine setup, see [dev-setup](https://github.com/tafuru/dev-setup).
+- [dev-setup](https://github.com/tafuru/dev-setup) — Full machine setup (entry point)
+- [cmdtools](https://github.com/tafuru/cmdtools) — CLI tools installer
 
 ## License
 
