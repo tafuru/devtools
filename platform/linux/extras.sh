@@ -39,18 +39,16 @@ install_docker() {
   success "Docker installed"
 }
 
-# Ghostty — https://github.com/ghostty-org/ghostty
+# Ghostty — https://ghostty.org
 install_ghostty() {
   command -v ghostty &>/dev/null && { skip ghostty; return; }
   info "Installing Ghostty"
-  local tag; tag=$(gh_latest ghostty-org/ghostty)
-  local ver="${tag#v}"
-  local tmp; tmp=$(mktemp -d)
-  curl -sSfL "https://github.com/ghostty-org/ghostty/releases/download/${tag}/ghostty-${ver}-linux-x86_64.tar.gz" \
-    -o "$tmp/ghostty.tar.gz"
-  tar -xz -C "$tmp" -f "$tmp/ghostty.tar.gz"
-  sudo install -m 0755 "$tmp/ghostty" /usr/local/bin/ghostty
-  rm -rf "$tmp"
+  if command -v snap &>/dev/null; then
+    sudo snap install ghostty --classic
+  else
+    warn "snap not available — skipping Ghostty (install manually: https://ghostty.org/download)"
+    return
+  fi
   success "Ghostty installed"
 }
 

@@ -62,6 +62,6 @@ jobs:
         run: |
           command -v code
           command -v docker
-          command -v ghostty
+          command -v ghostty || snap list ghostty
           command -v 1password
           fc-list | grep -i hackgen
