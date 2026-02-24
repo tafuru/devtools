@@ -63,5 +63,5 @@ jobs:
           command -v code
           command -v docker
           command -v ghostty || snap list ghostty
-          command -v 1password
+          if [ "$(dpkg --print-architecture)" = "amd64" ]; then command -v 1password; fi
           fc-list | grep -i hackgen
