@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# Install GUI apps and fonts on Linux.
+set -euo pipefail
+
+info()    { echo "[devtools] $*"; }
+success() { echo "[devtools] ✓ $*"; }
+skip()    { echo "[devtools] - $* already installed — skipping"; }
+
+# Fetch the latest release tag from GitHub (returns e.g. "v1.2.3")
+gh_latest() {
+  curl -sSfL "https://api.github.com/repos/$1/releases/latest" \
+    | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\(.*\)".*/\1/'
+}
+
+# VSCode — https://code.visualstudio.com
+install_vscode() {
+  command -v code &>/dev/null && { skip "vscode"; return; }
+  info "Installing VSCode"
+  curl -sSfL "https://packages.microsoft.com/keys/microsoft.asc" \
+    | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+    | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+  sudo apt-get update -q
+  sudo apt-get install -y code
+  success "VSCode installed"
+}
+
+# Docker — https://docs.docker.com/engine/install/ubuntu/
+install_docker() {
+  command -v docker &>/dev/null && { skip docker; return; }
+  info "Installing Docker"
+  curl -sSfL "https://download.docker.com/linux/ubuntu/gpg" \
+    | gpg --dearmor | sudo tee /etc/apt/keyrings/docker.gpg > /dev/null
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get update -q
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  sudo usermod -aG docker "$USER" || true
+  success "Docker installed"
+}
+
+# Ghostty — https://github.com/ghostty-org/ghostty
+install_ghostty() {
+  command -v ghostty &>/dev/null && { skip ghostty; return; }
+  info "Installing Ghostty"
+  local tag; tag=$(gh_latest ghostty-org/ghostty)
+  local ver="${tag#v}"
+  local tmp; tmp=$(mktemp -d)
+  curl -sSfL "https://github.com/ghostty-org/ghostty/releases/download/${tag}/ghostty-${ver}-linux-x86_64.tar.gz" \
+    -o "$tmp/ghostty.tar.gz"
+  tar -xz -C "$tmp" -f "$tmp/ghostty.tar.gz"
+  sudo install -m 0755 "$tmp/ghostty" /usr/local/bin/ghostty
+  rm -rf "$tmp"
+  success "Ghostty installed"
+}
+
+# 1Password — https://support.1password.com/install-linux/
+install_1password() {
+  command -v 1password &>/dev/null && { skip "1password"; return; }
+  info "Installing 1Password"
+  curl -sSfL "https://downloads.1password.com/linux/keys/1password.asc" \
+    | gpg --dearmor | sudo tee /etc/apt/keyrings/1password-archive-keyring.gpg > /dev/null
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" \
+    | sudo tee /etc/apt/sources.list.d/1password.list > /dev/null
+  sudo apt-get update -q
+  sudo apt-get install -y 1password
+  success "1Password installed"
+}
+
+# HackGen Nerd Font — https://github.com/yuru7/HackGen
+install_hackgen_nerd() {
+  local font_dir="${HOME}/.local/share/fonts"
+  if ls "$font_dir"/HackGen*.ttf &>/dev/null 2>&1; then
+    skip "HackGen Nerd Font"
+    return
+  fi
+  info "Installing HackGen Nerd Font"
+  local tag; tag=$(gh_latest yuru7/HackGen)
+  local tmp; tmp=$(mktemp -d)
+  curl -sSfL "https://github.com/yuru7/HackGen/releases/download/${tag}/HackGen_NF_${tag}.zip" \
+    -o "$tmp/hackgen.zip"
+  unzip -q "$tmp/hackgen.zip" -d "$tmp"
+  mkdir -p "$font_dir"
+  find "$tmp" -name "*.ttf" -exec cp {} "$font_dir/" \;
+  fc-cache -f "$font_dir"
+  rm -rf "$tmp"
+  success "HackGen Nerd Font installed"
+}
+
+install_vscode
+install_docker
+install_ghostty
+install_1password
+install_hackgen_nerd
+
+success "All extras installed"

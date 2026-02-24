@@ -1,0 +1,14 @@
+# Editor
+cask "visual-studio-code"
+
+# Container
+cask "docker"
+
+# Terminal
+cask "ghostty"
+
+# Security
+cask "1password"
+
+# Fonts
+cask "font-hackgen-nerd"

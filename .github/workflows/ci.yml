@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run shellcheck
+        run: |
+          shellcheck install.sh
+          shellcheck platform/linux/extras.sh
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        install-method: [clone, curl]
+
+    steps:
+      - uses: actions/checkout@v4
+        if: matrix.install-method == 'clone'
+
+      - name: Run install.sh (clone mode)
+        if: matrix.install-method == 'clone'
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          command: bash install.sh
+
+      - name: Run install.sh (curl mode)
+        if: matrix.install-method == 'curl'
+        uses: nick-fields/retry@v3
+        env:
+          DEVTOOLS_BRANCH: ${{ github.head_ref || github.ref_name }}
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          command: |
+            BRANCH="${{ github.head_ref || github.ref_name }}"
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/tafuru/devtools/${BRANCH}/install.sh)"
+
+      - name: Verify apps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          test -d "/Applications/Visual Studio Code.app"
+          test -d "/Applications/Docker.app"
+          test -d "/Applications/Ghostty.app"
+          test -d "/Applications/1Password.app"
+          ls ~/Library/Fonts/HackGen*NF*.ttf | grep -q .
+
+      - name: Verify apps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          command -v code
+          command -v docker
+          command -v ghostty
+          command -v 1password
+          fc-list | grep -i hackgen
