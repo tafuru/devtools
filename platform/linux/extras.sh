@@ -76,9 +76,10 @@ install_1password() {
       -o "$tmp/1password.tar.gz"
     tar -xzf "$tmp/1password.tar.gz" -C "$tmp"
     local src; src=$(find "$tmp" -maxdepth 1 -mindepth 1 -type d | head -1)
-    sudo mkdir -p /opt/1Password /usr/share/applications
+    sudo mkdir -p /opt/1Password
     sudo cp -r "$src/." /opt/1Password/
-    sudo /opt/1Password/after-install.sh
+    sudo ln -sf /opt/1Password/1password /usr/local/bin/1password
+    sudo /opt/1Password/after-install.sh || true
     rm -rf "$tmp"
   fi
   success "1Password installed"
