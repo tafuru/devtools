@@ -78,7 +78,7 @@ install_1password() {
     local src; src=$(find "$tmp" -maxdepth 1 -mindepth 1 -type d | head -1)
     sudo mkdir -p /opt/1Password
     sudo cp -r "$src/." /opt/1Password/
-    sudo /opt/1Password/after-install.sh
+    sudo ln -sf /opt/1Password/1password /usr/local/bin/1password
     rm -rf "$tmp"
   fi
   success "1Password installed"
