@@ -66,8 +66,13 @@ install_1password() {
     sudo apt-get update -q
     sudo apt-get install -y 1password
   else
+    local url_arch
+    case "$arch" in
+      arm64) url_arch="aarch64" ;;
+      *)     url_arch="$arch" ;;
+    esac
     local tmp; tmp=$(mktemp -d)
-    curl -sSfL "https://downloads.1password.com/linux/tar/stable/${arch}/1password-latest.tar.gz" \
+    curl -sSfL "https://downloads.1password.com/linux/tar/stable/${url_arch}/1password-latest.tar.gz" \
       -o "$tmp/1password.tar.gz"
     tar -xzf "$tmp/1password.tar.gz" -C "$tmp"
     local src; src=$(find "$tmp" -maxdepth 1 -mindepth 1 -type d | head -1)
