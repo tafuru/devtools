@@ -56,13 +56,32 @@ install_ghostty() {
 # 1Password — https://support.1password.com/install-linux/
 install_1password() {
   command -v 1password &>/dev/null && { skip "1password"; return; }
+  local arch; arch=$(dpkg --print-architecture)
   info "Installing 1Password"
-  curl -sSfL "https://downloads.1password.com/linux/keys/1password.asc" \
-    | gpg --dearmor | sudo tee /etc/apt/keyrings/1password-archive-keyring.gpg > /dev/null
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" \
-    | sudo tee /etc/apt/sources.list.d/1password.list > /dev/null
-  sudo apt-get update -q
-  sudo apt-get install -y 1password
+  if [ "$arch" = "amd64" ]; then
+    curl -sSfL "https://downloads.1password.com/linux/keys/1password.asc" \
+      | gpg --dearmor | sudo tee /etc/apt/keyrings/1password-archive-keyring.gpg > /dev/null
+    echo "deb [arch=${arch} signed-by=/etc/apt/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/${arch} stable main" \
+      | sudo tee /etc/apt/sources.list.d/1password.list > /dev/null
+    sudo apt-get update -q
+    sudo apt-get install -y 1password
+  else
+    local url_arch
+    case "$arch" in
+      arm64) url_arch="aarch64" ;;
+      *)     url_arch="$arch" ;;
+    esac
+    local tmp; tmp=$(mktemp -d)
+    curl -sSfL "https://downloads.1password.com/linux/tar/stable/${url_arch}/1password-latest.tar.gz" \
+      -o "$tmp/1password.tar.gz"
+    tar -xzf "$tmp/1password.tar.gz" -C "$tmp"
+    local src; src=$(find "$tmp" -maxdepth 1 -mindepth 1 -type d | head -1)
+    sudo mkdir -p /opt/1Password
+    sudo cp -r "$src/." /opt/1Password/
+    sudo ln -sf /opt/1Password/1password /usr/local/bin/1password
+    sudo /opt/1Password/after-install.sh || true
+    rm -rf "$tmp"
+  fi
   success "1Password installed"
 }
 
