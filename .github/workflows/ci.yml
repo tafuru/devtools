@@ -65,3 +65,16 @@ jobs:
           command -v ghostty || snap list ghostty
           command -v 1password
           fc-list | grep -i hackgen
+
+  notify-dev-setup:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger dev-setup CI
+        run: |
+          curl -fsSL -X POST \
+            -H "Authorization: token ${{ secrets.DEV_SETUP_DISPATCH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/tafuru/dev-setup/dispatches \
+            -d '{"event_type":"upstream-changed","client_payload":{"source":"devtools"}}'
