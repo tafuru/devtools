@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Tokyo",
+  "labels": ["dependencies"],
+  "commitMessagePrefix": "chore(deps):",
+  "brew": {
+    "enabled": true
+  },
+  "github-actions": {
+    "enabled": true
+  }
+}
